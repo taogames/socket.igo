@@ -3,7 +3,7 @@ package socketigo
 import (
 	"io"
 
-	engineigo "engine.igo/v4"
+	engineigo "github.com/taogames/engine.igo"
 	"go.uber.org/zap"
 )
 

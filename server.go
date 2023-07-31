@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	engineigo "engine.igo/v4"
+	engineigo "github.com/taogames/engine.igo"
 	"go.uber.org/zap"
 )
 

@@ -1,11 +1,9 @@
-module socket.igo/v4
+module github.com/taogames/socket.igo
 
-go 1.18
-
-replace engine.igo/v4 v4.0.0 => ../engine.igo
+go 1.20
 
 require (
-	engine.igo/v4 v4.0.0
+	github.com/taogames/engine.igo v1.0.0
 	go.uber.org/zap v1.24.0
 )
 

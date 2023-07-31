@@ -3,7 +3,7 @@ package main
 import (
 	"net/http"
 
-	socketigo "socket.igo/v4"
+	socketigo "github.com/taogames/socket.igo"
 )
 
 var numUsers int

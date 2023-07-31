@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	socketigo "github.com/taogames/socket.igo"
 	"go.uber.org/zap"
-	socketigo "socket.igo/v4"
 )
 
 // Test cases from https://github.com/socketio/socket.io-protocol
