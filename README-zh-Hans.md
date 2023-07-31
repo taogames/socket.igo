@@ -2,26 +2,26 @@
 \[[English](README.md)\]
 \[[简体中文](README-zh-Hans.md)\]
 
-A go implementation of [Socket.IO](https://socket.io/) server 4.x.
+Golang 实现的 [Socket.IO](https://socket.io/) 4.x 版服务端.
 
-socket.igo is based on [engine.igo](https://github.com/taogames/engine.igo)。
-
-
-## Compatibility
-Socket.IO client ver >= 3.0.0
+socket.igo 底层基于 [engine.igo](https://github.com/taogames/engine.igo)。
 
 
-## Installation
+## 兼容性
+Socket.IO 客户端版本 >= 3.0.0
+
+
+## 安装
 ```
 go get github.com/taogames/socket.igo
 ```
 
 
-## Example
+## 示例
 * [Chat Room](example/chat)
 
 
-## Get Started
+## 开始
 ```go
 	server := socketigo.NewServer()
 
@@ -45,15 +45,14 @@ go get github.com/taogames/socket.igo
 ```
 
 
-## Contributing
-We welcome your opinions, discussions and contributions to this project. There are quite a few to-dos including but not limited to:
-* Feature: Dynamic namespace, Binary message, Acknowledgement
-* Test: Unit test, Performance test
-* Client
+## 贡献
+欢迎大伙一起来讨论&贡献代码，一起提高项目质量。包括不限于：
+* 功能方面：动态域名, 二进制消息, 消息确认
+* 测试方面：单元测试，性能测试
+* 客户端
 * ......
 
-Feel free to contact us at telegram group: [socket.igo](https://t.me/+9c2-MZrtT4tmMTJl)
 
-
-## License
+欢迎加入电报群: [socket.igo](https://t.me/+9c2-MZrtT4tmMTJl)
+## 许可证
 [Apache License 2.0](LICENSE)
