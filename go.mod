@@ -3,7 +3,7 @@ module github.com/taogames/socket.igo
 go 1.20
 
 require (
-	github.com/taogames/engine.igo v1.0.0
+	github.com/taogames/engine.igo v1.0.1
 	go.uber.org/zap v1.24.0
 )
 

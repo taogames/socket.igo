@@ -16,6 +16,8 @@ github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UV
 github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PKk=
 github.com/taogames/engine.igo v1.0.0 h1:Z+pkQ1482TF31Ocvv1gJqQvnTZUjXVbQ6CztYvACaiA=
 github.com/taogames/engine.igo v1.0.0/go.mod h1:E+U2I0A3c6xSEVNLe5FU6GmNvqQ40tKA98NVOMPhn9o=
+github.com/taogames/engine.igo v1.0.1 h1:i1KVeDTAW6K7Awy7kMZ7Qq7MfeF3VHDeQOgy+hXE2pA=
+github.com/taogames/engine.igo v1.0.1/go.mod h1:E+U2I0A3c6xSEVNLe5FU6GmNvqQ40tKA98NVOMPhn9o=
 go.uber.org/atomic v1.7.0 h1:ADUqmZGgLDDfbSL9ZmPxKTybcoEYHgpYfELNoN+7hsw=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/goleak v1.1.11 h1:wy28qYRKZgnJTxGxvye5/wgWr1EKjmUDGYox5mGlRlI=

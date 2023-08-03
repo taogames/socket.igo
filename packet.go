@@ -1,14 +1,17 @@
 package socketigo
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+)
 
 type Packet struct {
-	Type        PacketType
-	Namespace   string
-	Data        any
-	DataBytes   []byte
-	Id          int
-	Attachments int
+	Type             PacketType
+	Namespace        string
+	Data             any
+	DataKind         reflect.Kind
+	Id               int
+	NumOfAttachments int
 }
 
 type PacketType int

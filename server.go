@@ -1,11 +1,13 @@
 package socketigo
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"time"
 
 	engineigo "github.com/taogames/engine.igo"
+	"github.com/taogames/engine.igo/message"
 	"go.uber.org/zap"
 )
 
@@ -93,7 +95,7 @@ func (s *Server) Accept() {
 
 			// Init
 			go func() {
-				_, _, r, err := conn.session.NextReader()
+				mt, _, r, err := conn.session.NextReader()
 				if err != nil {
 					s.logger.Error("conn.session.NextReader(): ", err)
 					return
@@ -105,7 +107,12 @@ func (s *Server) Accept() {
 				}
 				r.Close()
 
-				packet, err := conn.parser.Decode(bs)
+				if mt != message.MTText {
+					s.logger.Errorf("first message is %v, not text ", mt)
+					conn.Close()
+					return
+				}
+				packet, err := conn.parser.Decode(mt, bs)
 				if err != nil {
 					s.logger.Error("parser.Decode error: ", err)
 					conn.Close()
@@ -123,8 +130,8 @@ func (s *Server) Accept() {
 					conn.Close()
 					return
 				}
-
-				conn.Connect(nsp, packet.DataBytes)
+				handshake, _ := json.Marshal(packet.Data)
+				conn.Connect(nsp, handshake)
 				go conn.Start()
 
 			}()

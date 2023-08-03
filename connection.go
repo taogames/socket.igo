@@ -1,6 +1,7 @@
 package socketigo
 
 import (
+	"encoding/json"
 	"io"
 
 	engineigo "github.com/taogames/engine.igo"
@@ -37,7 +38,6 @@ func (conn *Connection) Connect(nsp *Namespace, handshake []byte) {
 }
 
 func (conn *Connection) WriteToEngine(bs []byte) error {
-
 	return conn.session.WriteMessage(bs)
 }
 
@@ -58,7 +58,7 @@ func (conn *Connection) ConnectError(namespace string, errMsg interface{}) {
 
 func (conn *Connection) Start() {
 	for {
-		_, _, r, err := conn.session.NextReader()
+		mt, _, r, err := conn.session.NextReader()
 		if err != nil {
 			conn.logger.Error("conn.session.NextReader:", err)
 
@@ -77,12 +77,17 @@ func (conn *Connection) Start() {
 		}
 		r.Close()
 
-		packet, err := conn.parser.Decode(bs)
+		packet, err := conn.parser.Decode(mt, bs)
 		if err != nil {
 			conn.logger.Error("conn.parser.Decode:", err)
 			conn.Close()
 			return
 		}
+		if packet == nil {
+			// Binary payload concatenating
+			continue
+		}
+
 		nsp, ok := conn.server.nsps[packet.Namespace]
 		if !ok {
 			conn.ConnectError(packet.Namespace, ErrInvalidNamespace)
@@ -91,7 +96,8 @@ func (conn *Connection) Start() {
 
 		switch packet.Type {
 		case PacketConnect:
-			conn.Connect(nsp, packet.DataBytes)
+			handshake, _ := json.Marshal(packet.Data)
+			conn.Connect(nsp, handshake)
 		default:
 			nsp.Dispatch(conn.socketIds[packet.Namespace].Id, packet)
 		}

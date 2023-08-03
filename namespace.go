@@ -81,7 +81,7 @@ func (nsp *Namespace) Disconnect(sid string) {
 	nsp.Unlock()
 }
 
-// TODO: add packet type: Ack, Binary & ConnectError
+// TODO: add packet type: Ack & ConnectError
 func (nsp *Namespace) Dispatch(sid string, packet *Packet) {
 	nsp.logger.Debug("Dispatch", packet)
 
@@ -94,10 +94,10 @@ func (nsp *Namespace) Dispatch(sid string, packet *Packet) {
 	switch packet.Type {
 	case PacketDisconnect:
 		nsp.Disconnect(sid)
-	case PacketEvent:
-		name, argBs, err := socket.conn.parser.ParseEventName(packet.DataBytes)
+	case PacketEvent, PacketBinaryEvent:
+		name, err := socket.conn.parser.ParseEventName(packet)
 		if err != nil {
-			nsp.logger.Errorf("ParseEventName %v: %v", string(packet.DataBytes), err)
+			nsp.logger.Errorf("ParseEventName %v: %v", packet, err)
 			return
 		}
 		h := socket.eh.GetHandler(name)
@@ -106,9 +106,9 @@ func (nsp *Namespace) Dispatch(sid string, packet *Packet) {
 			return
 		}
 
-		args, err := socket.conn.parser.ParseEventArgs(argBs, h.types, h.f.Type().IsVariadic())
+		args, err := socket.conn.parser.ParseEventArgs(packet, h.types, h.f.Type().IsVariadic())
 		if err != nil {
-			nsp.logger.Errorf("ParseEventArgs %v: %v", string(argBs), err)
+			nsp.logger.Errorf("ParseEventArgs %v: %v", packet, err)
 			return
 		}
 		h.f.Call(args)
