@@ -7,14 +7,13 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
-	"strings"
 
 	"github.com/taogames/engine.igo/message"
 )
 
 type Parser interface {
-	Decode(message.MessageType, []byte) (*Packet, error)
-	Encode(*Packet) ([]byte, error)
+	Decode(*message.Message) (*Packet, error)
+	Encode(*Packet) ([]*message.Message, error)
 
 	ParseEventName(*Packet) (string, error)
 	ParseEventArgs(*Packet, []reflect.Type, bool) ([]reflect.Value, error)
@@ -65,10 +64,10 @@ func (recon *reconstructor) build() *Packet {
 	return recon.packet
 }
 
-func (p *defaultParser) Decode(mt message.MessageType, bs []byte) (*Packet, error) {
-	switch mt {
+func (p *defaultParser) Decode(msg *message.Message) (*Packet, error) {
+	switch msg.Type {
 	case message.MTText:
-		packet, err := p.decodeString(bs)
+		packet, err := p.decodeString(msg.Data)
 		if err != nil {
 			return nil, err
 		}
@@ -85,7 +84,7 @@ func (p *defaultParser) Decode(mt message.MessageType, bs []byte) (*Packet, erro
 		}
 
 	case message.MTBinary:
-		isFull, packet := p.recon.takeBinary(bs)
+		isFull, packet := p.recon.takeBinary(msg.Data)
 		if isFull {
 			return packet, nil
 		}
@@ -221,26 +220,53 @@ func itob(i int) byte {
 	return '0' + byte(i)
 }
 
-func (p *defaultParser) Encode(packet *Packet) ([]byte, error) {
-	var builder strings.Builder
+type binaryPlaceholder struct {
+	Placeholder bool `json:"_placeholder"`
+	Num         int  `json:"num"`
+}
 
-	// Type
-	builder.WriteByte(itob(int(packet.Type)))
+func (p *defaultParser) Encode(packet *Packet) ([]*message.Message, error) {
+	msgs := make([]*message.Message, 1)
 
-	// Bin
-	if packet.Type == PacketBinaryEvent || packet.Type == PacketBinaryAck {
-		builder.Write([]byte{itob(packet.NumOfAttachments), '-'})
+	var buffer bytes.Buffer
+
+	packet.DataKind = reflect.ValueOf(packet.Data).Kind()
+
+	// Type & Bin
+	if packet.Type == PacketEvent {
+		data, ok := packet.Data.([]interface{})
+		if !ok || len(data) == 0 {
+			return nil, fmt.Errorf("invalid event packet: %+v", packet)
+		}
+		_, ok = data[0].(string)
+		if !ok {
+			return nil, fmt.Errorf("invalid event packet: %+v", packet)
+		}
+
+		for i := 1; i < len(data); i++ {
+			packet.Type = PacketBinaryEvent
+			bs, ok := data[i].([]byte)
+			if ok {
+				data[i] = &binaryPlaceholder{Placeholder: true, Num: packet.NumOfAttachments}
+			}
+			packet.NumOfAttachments++
+			msgs = append(msgs, &message.Message{Type: message.MTBinary, Data: bs})
+		}
+	}
+	buffer.WriteByte(itob(int(packet.Type)))
+	if packet.Type == PacketBinaryEvent {
+		buffer.Write([]byte{itob(packet.NumOfAttachments), '-'})
 	}
 
 	// Nsp
 	if packet.Namespace != "/" {
-		builder.WriteString(packet.Namespace)
-		builder.WriteByte(',')
+		buffer.WriteString(packet.Namespace)
+		buffer.WriteByte(',')
 	}
 
 	// Ack
 	if packet.Id != 0 {
-		builder.WriteByte(itob(packet.Id))
+		buffer.WriteByte(itob(packet.Id))
 	}
 
 	// Data
@@ -248,13 +274,23 @@ func (p *defaultParser) Encode(packet *Packet) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	builder.Write(bs)
+	buffer.Write(bs)
 
-	return []byte(builder.String()), nil
+	// Build
+	fmt.Println("buffer.String(): ", buffer.String())
+	msgs[0] = &message.Message{Type: message.MTText, Data: buffer.Bytes()}
+
+	return msgs, nil
 }
 
 func (p *defaultParser) ParseEventName(packet *Packet) (string, error) {
-	return packet.Data.([]interface{})[0].(string), nil
+	if packet.DataKind == reflect.Slice && reflect.ValueOf(packet.Data).Len() > 0 {
+		name, ok := packet.Data.([]interface{})[0].(string)
+		if ok {
+			return name, nil
+		}
+	}
+	return "", fmt.Errorf("invalid packet: %+v", packet)
 }
 
 func (p *defaultParser) ParseEventArgs(packet *Packet, types []reflect.Type, isVariadic bool) ([]reflect.Value, error) {

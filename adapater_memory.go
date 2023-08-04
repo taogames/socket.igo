@@ -71,7 +71,7 @@ func (adp *InMemoryAdapter) Broadcast(packet *Packet, opts *BroadcastOptions) {
 	adp.RLock()
 	defer adp.RUnlock()
 
-	bs, err := adp.nsp.parser.Encode(packet)
+	msgs, err := adp.nsp.parser.Encode(packet)
 	if err != nil {
 		adp.logger.Errorf("Broadcast packet %v: %v", packet, err)
 	}
@@ -97,7 +97,7 @@ func (adp *InMemoryAdapter) Broadcast(packet *Packet, opts *BroadcastOptions) {
 	}
 
 	for sid := range sids {
-		if err := adp.nsp.sockets[sid].conn.WriteToEngine(bs); err != nil {
+		if err := adp.nsp.sockets[sid].conn.WriteToEngine(msgs); err != nil {
 			adp.logger.Errorf("Broadcast sid=%v WriteToEngine: %v", sid, err)
 		}
 	}

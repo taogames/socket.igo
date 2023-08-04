@@ -112,7 +112,7 @@ func (s *Server) Accept() {
 					conn.Close()
 					return
 				}
-				packet, err := conn.parser.Decode(mt, bs)
+				packet, err := conn.parser.Decode(&message.Message{Type: mt, Data: bs})
 				if err != nil {
 					s.logger.Error("parser.Decode error: ", err)
 					conn.Close()

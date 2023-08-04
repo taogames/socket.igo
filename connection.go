@@ -2,9 +2,11 @@ package socketigo
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 
 	engineigo "github.com/taogames/engine.igo"
+	"github.com/taogames/engine.igo/message"
 	"go.uber.org/zap"
 )
 
@@ -27,18 +29,24 @@ func (conn *Connection) Connect(nsp *Namespace, handshake []byte) {
 		Namespace: nsp.Name(),
 		Data:      rData,
 	}
-	bs, err := conn.parser.Encode(rPacket)
+	msgs, err := conn.parser.Encode(rPacket)
 	if err != nil {
 		conn.logger.Error("conn.parser.Encode: ", err)
 		return
 	}
-	conn.session.WriteMessage(bs)
+	conn.WriteToEngine(msgs)
 
 	nsp.Connect(sid, conn, handshake)
 }
 
-func (conn *Connection) WriteToEngine(bs []byte) error {
-	return conn.session.WriteMessage(bs)
+func (conn *Connection) WriteToEngine(msgs []*message.Message) error {
+	for _, msg := range msgs {
+		fmt.Println("WriteToEngine: ", msg.Type, string(msg.Data))
+		if err := conn.session.WriteMessage(msg); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (conn *Connection) ConnectError(namespace string, errMsg interface{}) {
@@ -48,12 +56,12 @@ func (conn *Connection) ConnectError(namespace string, errMsg interface{}) {
 		Data:      errMsg,
 	}
 
-	bs, err := conn.parser.Encode(rPacket)
+	msgs, err := conn.parser.Encode(rPacket)
 	if err != nil {
 		conn.logger.Error("conn.parser.Encode", err)
 		return
 	}
-	conn.session.WriteMessage(bs)
+	conn.WriteToEngine(msgs)
 }
 
 func (conn *Connection) Start() {
@@ -77,7 +85,7 @@ func (conn *Connection) Start() {
 		}
 		r.Close()
 
-		packet, err := conn.parser.Decode(mt, bs)
+		packet, err := conn.parser.Decode(&message.Message{Type: mt, Data: bs})
 		if err != nil {
 			conn.logger.Error("conn.parser.Decode:", err)
 			conn.Close()

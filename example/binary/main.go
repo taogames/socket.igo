@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	socketigo "github.com/taogames/socket.igo"
@@ -34,10 +36,11 @@ func main() {
 	)
 
 	server.Of("/").OnConnection(func(socket *socketigo.Socket) {
-		socket.On("upload", func(data []byte) {
-			if err := os.WriteFile("./file", data, 0755); err != nil {
+		socket.On("upload", func(name string, data []byte) {
+			if err := os.WriteFile("./"+name, data, 0755); err != nil {
 				fmt.Println(err)
 			}
+			socket.Emit("download", strings.TrimSuffix(name, filepath.Ext(name))+"-back"+filepath.Ext(name), data)
 		})
 	})
 

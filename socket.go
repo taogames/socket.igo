@@ -85,13 +85,13 @@ func (s *Socket) Emit(eName string, args ...interface{}) {
 		Data:      data,
 	}
 
-	bs, err := s.conn.parser.Encode(packet)
+	msgs, err := s.conn.parser.Encode(packet)
 	if err != nil {
 		s.logger.Error("s.conn.parser.Encode: ", err)
 		return
 	}
 
-	s.conn.session.WriteMessage(bs)
+	s.conn.WriteToEngine(msgs)
 }
 
 func (s *Socket) On(eName string, h any) {
