@@ -37,10 +37,16 @@ func main() {
 
 	server.Of("/").OnConnection(func(socket *socketigo.Socket) {
 		socket.On("upload", func(name string, data []byte) {
+			fmt.Println("upload: ", name)
 			if err := os.WriteFile("./"+name, data, 0755); err != nil {
 				fmt.Println(err)
 			}
 			socket.Emit("download", strings.TrimSuffix(name, filepath.Ext(name))+"-back"+filepath.Ext(name), data)
+		})
+
+		socket.On("message", func(msg any) {
+			fmt.Println("message: ", msg)
+			socket.Emit("message-back", msg)
 		})
 	})
 

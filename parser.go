@@ -244,13 +244,13 @@ func (p *defaultParser) Encode(packet *Packet) ([]*message.Message, error) {
 		}
 
 		for i := 1; i < len(data); i++ {
-			packet.Type = PacketBinaryEvent
 			bs, ok := data[i].([]byte)
 			if ok {
+				packet.Type = PacketBinaryEvent
 				data[i] = &binaryPlaceholder{Placeholder: true, Num: packet.NumOfAttachments}
+				packet.NumOfAttachments++
+				msgs = append(msgs, &message.Message{Type: message.MTBinary, Data: bs})
 			}
-			packet.NumOfAttachments++
-			msgs = append(msgs, &message.Message{Type: message.MTBinary, Data: bs})
 		}
 	}
 	buffer.WriteByte(itob(int(packet.Type)))
