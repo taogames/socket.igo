@@ -162,7 +162,7 @@ func (p *defaultParser) decodeString(bs []byte) (*Packet, error) {
 				if err != nil {
 					return nil, err
 				}
-				packet.Id = id
+				packet.Id = &id
 				break
 			}
 		}
@@ -233,28 +233,41 @@ func (p *defaultParser) Encode(packet *Packet) ([]*message.Message, error) {
 	packet.DataKind = reflect.ValueOf(packet.Data).Kind()
 
 	// Type & Bin
-	if packet.Type == PacketEvent {
+	if packet.Type == PacketEvent || packet.Type == PacketAck {
 		data, ok := packet.Data.([]interface{})
-		if !ok || len(data) == 0 {
-			return nil, fmt.Errorf("invalid event packet: %+v", packet)
-		}
-		_, ok = data[0].(string)
 		if !ok {
-			return nil, fmt.Errorf("invalid event packet: %+v", packet)
+			return nil, fmt.Errorf("invalid event packet data type: %+v", packet)
+		}
+		argBegin := 0
+		if packet.Type == PacketEvent {
+			if len(data) > 0 {
+				return nil, fmt.Errorf("invalid event packet data length: %+v", packet)
+			}
+			_, ok = data[0].(string)
+			if !ok {
+				return nil, fmt.Errorf("invalid event packet data name: %+v", packet)
+			}
+			argBegin = 1
 		}
 
-		for i := 1; i < len(data); i++ {
+		for i := argBegin; i < len(data); i++ {
 			bs, ok := data[i].([]byte)
 			if ok {
-				packet.Type = PacketBinaryEvent
 				data[i] = &binaryPlaceholder{Placeholder: true, Num: packet.NumOfAttachments}
 				packet.NumOfAttachments++
 				msgs = append(msgs, &message.Message{Type: message.MTBinary, Data: bs})
 			}
 		}
+		if packet.NumOfAttachments > 0 {
+			if packet.Type == PacketEvent {
+				packet.Type = PacketBinaryEvent
+			} else {
+				packet.Type = PacketBinaryAck
+			}
+		}
 	}
 	buffer.WriteByte(itob(int(packet.Type)))
-	if packet.Type == PacketBinaryEvent {
+	if packet.Type == PacketBinaryEvent || packet.Type == PacketBinaryAck {
 		buffer.Write([]byte{itob(packet.NumOfAttachments), '-'})
 	}
 
@@ -265,8 +278,8 @@ func (p *defaultParser) Encode(packet *Packet) ([]*message.Message, error) {
 	}
 
 	// Ack
-	if packet.Id != 0 {
-		buffer.WriteByte(itob(packet.Id))
+	if packet.Id != nil {
+		buffer.WriteByte(itob(*packet.Id))
 	}
 
 	// Data
@@ -277,7 +290,6 @@ func (p *defaultParser) Encode(packet *Packet) ([]*message.Message, error) {
 	buffer.Write(bs)
 
 	// Build
-	fmt.Println("buffer.String(): ", buffer.String())
 	msgs[0] = &message.Message{Type: message.MTText, Data: buffer.Bytes()}
 
 	return msgs, nil

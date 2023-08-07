@@ -47,7 +47,7 @@ go get github.com/taogames/socket.igo
 
 ## Contributing
 We welcome your opinions, discussions and contributions to this project. There are quite a few to-dos including but not limited to:
-* Feature: Dynamic namespace, Acknowledgement
+* Feature: Dynamic namespace
 * Test: Unit test, Performance test
 * Client
 * ......

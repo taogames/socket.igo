@@ -74,43 +74,9 @@ func (nsp *Namespace) Connect(sid string, conn *Connection, handshake []byte) {
 	nsp.adapter.Join(socket.Id, socket.Id)
 }
 
-func (nsp *Namespace) Disconnect(sid string) {
+func (nsp *Namespace) Remove(sid string) {
 	nsp.Lock()
+	defer nsp.Unlock()
 	delete(nsp.sockets, sid)
 	nsp.adapter.LeaveAll(sid)
-	nsp.Unlock()
-}
-
-// TODO: add packet type: Ack & ConnectError
-func (nsp *Namespace) Dispatch(sid string, packet *Packet) {
-	nsp.logger.Debug("Dispatch", packet)
-
-	socket, ok := nsp.sockets[sid]
-	if !ok {
-		nsp.logger.Errorf("sid=%v not exist", sid)
-		return
-	}
-
-	switch packet.Type {
-	case PacketDisconnect:
-		nsp.Disconnect(sid)
-	case PacketEvent, PacketBinaryEvent:
-		name, err := socket.conn.parser.ParseEventName(packet)
-		if err != nil {
-			nsp.logger.Errorf("ParseEventName %v: %v", packet, err)
-			return
-		}
-		h := socket.eh.GetHandler(name)
-
-		if h == nil {
-			return
-		}
-
-		args, err := socket.conn.parser.ParseEventArgs(packet, h.types, h.f.Type().IsVariadic())
-		if err != nil {
-			nsp.logger.Errorf("ParseEventArgs %v: %v", packet, err)
-			return
-		}
-		h.f.Call(args)
-	}
 }

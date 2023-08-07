@@ -10,7 +10,7 @@ type Packet struct {
 	Namespace        string
 	Data             any
 	DataKind         reflect.Kind
-	Id               int
+	Id               *int
 	NumOfAttachments int
 }
 

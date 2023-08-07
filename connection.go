@@ -2,7 +2,6 @@ package socketigo
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 
 	engineigo "github.com/taogames/engine.igo"
@@ -41,7 +40,6 @@ func (conn *Connection) Connect(nsp *Namespace, handshake []byte) {
 
 func (conn *Connection) WriteToEngine(msgs []*message.Message) error {
 	for _, msg := range msgs {
-		fmt.Println("WriteToEngine: ", msg.Type, string(msg.Data))
 		if err := conn.session.WriteMessage(msg); err != nil {
 			return err
 		}
@@ -71,7 +69,7 @@ func (conn *Connection) Start() {
 			conn.logger.Error("conn.session.NextReader:", err)
 
 			for _, socket := range conn.socketIds {
-				socket._disconnect(true, DRTransportError)
+				socket.disconnect(true, DRTransportError)
 			}
 
 			conn.Close()
@@ -85,31 +83,42 @@ func (conn *Connection) Start() {
 		}
 		r.Close()
 
-		packet, err := conn.parser.Decode(&message.Message{Type: mt, Data: bs})
-		if err != nil {
-			conn.logger.Error("conn.parser.Decode:", err)
-			conn.Close()
-			return
-		}
-		if packet == nil {
-			// Binary payload concatenating
-			continue
-		}
-
-		nsp, ok := conn.server.nsps[packet.Namespace]
-		if !ok {
-			conn.ConnectError(packet.Namespace, ErrInvalidNamespace)
-			conn.Close()
-		}
-
-		switch packet.Type {
-		case PacketConnect:
-			handshake, _ := json.Marshal(packet.Data)
-			conn.Connect(nsp, handshake)
-		default:
-			nsp.Dispatch(conn.socketIds[packet.Namespace].Id, packet)
-		}
+		conn.onPacket(mt, bs)
 	}
+}
+
+func (conn *Connection) onPacket(mt message.MessageType, data []byte) {
+	packet, err := conn.parser.Decode(&message.Message{Type: mt, Data: data})
+	if err != nil {
+		conn.logger.Error("conn.parser.Decode:", err)
+		conn.Close()
+		return
+	}
+	if packet == nil {
+		// Binary payload concatenating
+		return
+	}
+
+	nsp, ok := conn.server.nsps[packet.Namespace]
+	if !ok {
+		conn.ConnectError(packet.Namespace, ErrInvalidNamespace)
+		conn.Close()
+	}
+
+	switch packet.Type {
+	case PacketConnect:
+		handshake, _ := json.Marshal(packet.Data)
+		conn.Connect(nsp, handshake)
+	case PacketDisconnect:
+		socket := conn.socketIds[packet.Namespace]
+		socket.disconnect(false, DRClientNamespaceDisconnect)
+	case PacketEvent, PacketBinaryEvent:
+		socket := conn.socketIds[packet.Namespace]
+		socket.dispatch(packet)
+	default:
+		// Not supported
+	}
+
 }
 
 func (conn *Connection) Close() {
