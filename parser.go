@@ -240,7 +240,7 @@ func (p *defaultParser) Encode(packet *Packet) ([]*message.Message, error) {
 		}
 		argBegin := 0
 		if packet.Type == PacketEvent {
-			if len(data) > 0 {
+			if len(data) == 0 {
 				return nil, fmt.Errorf("invalid event packet data length: %+v", packet)
 			}
 			_, ok = data[0].(string)
