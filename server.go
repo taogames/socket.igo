@@ -2,7 +2,6 @@ package socketigo
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"time"
 
@@ -95,17 +94,11 @@ func (s *Server) Accept() {
 
 			// Init
 			go func() {
-				mt, _, r, err := conn.session.NextReader()
+				mt, bs, err := conn.session.ReadMessage()
 				if err != nil {
 					s.logger.Error("conn.session.NextReader(): ", err)
 					return
 				}
-				bs, err := io.ReadAll(r)
-				if err != nil {
-					s.logger.Error("io.ReadAll: ", err)
-					return
-				}
-				r.Close()
 
 				if mt != message.MTText {
 					s.logger.Errorf("first message is %v, not text ", mt)

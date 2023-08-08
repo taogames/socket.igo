@@ -2,7 +2,6 @@ package socketigo
 
 import (
 	"encoding/json"
-	"io"
 
 	engineigo "github.com/taogames/engine.igo"
 	"github.com/taogames/engine.igo/message"
@@ -64,7 +63,7 @@ func (conn *Connection) ConnectError(namespace string, errMsg interface{}) {
 
 func (conn *Connection) Start() {
 	for {
-		mt, _, r, err := conn.session.NextReader()
+		mt, bs, err := conn.session.ReadMessage()
 		if err != nil {
 			conn.logger.Error("conn.session.NextReader:", err)
 
@@ -75,13 +74,6 @@ func (conn *Connection) Start() {
 			conn.Close()
 			return
 		}
-
-		bs, err := io.ReadAll(r)
-		if err != nil {
-			conn.logger.Error("io.ReadAll: ", err)
-			return
-		}
-		r.Close()
 
 		conn.onPacket(mt, bs)
 	}
