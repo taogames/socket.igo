@@ -2,8 +2,12 @@ github.com/benbjohnson/clock v1.1.0 h1:Q92kusRqC1XV2MjkWETPvjJVqKetz1OzxZB7mHJLj
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/felixge/httpsnoop v1.0.1 h1:lvB5Jl89CsZtGIWuTcDM1E/vkVs49/Ml7JJe07l8SPQ=
+github.com/felixge/httpsnoop v1.0.1/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/google/uuid v1.3.0 h1:t6JiXgmwXMjEs8VusXIJk2BXHsn+wx8BZdTaoZ5fu7I=
 github.com/google/uuid v1.3.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/gorilla/handlers v1.5.1 h1:9lRY6j8DEeeBT10CvO9hGW0gmky0BprnvDI5vfhUHH4=
+github.com/gorilla/handlers v1.5.1/go.mod h1:t8XrUpc4KVXb7HGyJ4/cEnwQiaxrX/hz1Zv/4g96P1Q=
 github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
 github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
@@ -14,12 +18,8 @@ github.com/sony/sonyflake v1.1.0/go.mod h1:LORtCywH/cq10ZbyfhKrHYgAUGH7mOBa76enV
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.8.0 h1:pSgiaMZlXftHpm5L7V1+rVB+AZJydKsMxsQBIJw4PKk=
-github.com/taogames/engine.igo v1.0.0 h1:Z+pkQ1482TF31Ocvv1gJqQvnTZUjXVbQ6CztYvACaiA=
-github.com/taogames/engine.igo v1.0.0/go.mod h1:E+U2I0A3c6xSEVNLe5FU6GmNvqQ40tKA98NVOMPhn9o=
-github.com/taogames/engine.igo v1.0.1 h1:i1KVeDTAW6K7Awy7kMZ7Qq7MfeF3VHDeQOgy+hXE2pA=
-github.com/taogames/engine.igo v1.0.1/go.mod h1:E+U2I0A3c6xSEVNLe5FU6GmNvqQ40tKA98NVOMPhn9o=
-github.com/taogames/engine.igo v1.0.2 h1:89iKNXqbKOl8ZqxWFaIUgzPaioHlkIxUw1OU3aAcADM=
-github.com/taogames/engine.igo v1.0.2/go.mod h1:E+U2I0A3c6xSEVNLe5FU6GmNvqQ40tKA98NVOMPhn9o=
+github.com/taogames/engine.igo v1.0.3 h1:/6B9zv06I+LoHvMa3bqy/DBQOQWpkP2+hdBb7Wnv6Ps=
+github.com/taogames/engine.igo v1.0.3/go.mod h1:E+U2I0A3c6xSEVNLe5FU6GmNvqQ40tKA98NVOMPhn9o=
 go.uber.org/atomic v1.7.0 h1:ADUqmZGgLDDfbSL9ZmPxKTybcoEYHgpYfELNoN+7hsw=
 go.uber.org/atomic v1.7.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/goleak v1.1.11 h1:wy28qYRKZgnJTxGxvye5/wgWr1EKjmUDGYox5mGlRlI=
